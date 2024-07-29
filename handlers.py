@@ -25,11 +25,7 @@ async def start_command(message: Message, state: FSMContext):
         text='Зарегистрироваться на 1win',
         url=LEXICON['link'],
     )
-    button2 = InlineKeyboardButton(
-        text='Правила пользования',
-        callback_data='rules',
-    )
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button1], [button2]])
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button1]])
 
     await state.set_state(StartStates.wait_for_confirmation)
 
