@@ -5,10 +5,10 @@ from aiogram import Router, F
 from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, FSInputFile
 from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import default_state
 
 from lexicon import LEXICON
 from states import StartStates
+from config import settings
 
 
 router = Router()
@@ -35,15 +35,17 @@ async def start_command(message: Message, state: FSMContext):
 
 @router.message(F.photo, StateFilter(StartStates.wait_for_confirmation))
 async def get_screen(message: Message, state: FSMContext):
+    await message.copy_to(settings.admin)
+
     await state.set_state(StartStates.confirmed)
     button = InlineKeyboardButton(
         text='Расcчитать сигнал📈',
         callback_data='signal'
     )
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
-    await asyncio.sleep(3)
+    await asyncio.sleep(10)
     await message.answer(text=LEXICON["confirmed"])
-    await asyncio.sleep(3)
+    await asyncio.sleep(5)
     await message.answer(text=LEXICON["welcome_to_team"], reply_markup=keyboard)
 
 
