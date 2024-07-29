@@ -3,7 +3,7 @@ import asyncio
 
 from aiogram import Router, F
 from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, FSInputFile
-from aiogram.filters import CommandStart, StateFilter
+from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 
 from lexicon import LEXICON
@@ -25,13 +25,22 @@ async def start_command(message: Message, state: FSMContext):
         text='Зарегистрироваться на 1win',
         url=LEXICON['link'],
     )
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button1]])
+    button2 = InlineKeyboardButton(
+        text='Правила пользования',
+        callback_data='rules',
+    )
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button1], [button2]])
 
     await state.set_state(StartStates.wait_for_confirmation)
 
     photo = FSInputFile("1win.jpg")
     await message.bot.send_photo(chat_id=message.chat.id, photo=photo,
                                  caption=LEXICON["start"], reply_markup=keyboard)
+
+
+@router.message(Command(commands=['help']))
+async def help_command(message: Message):
+    await message.answer(text=LEXICON["rules"])
 
 
 @router.message(F.photo, StateFilter(StartStates.wait_for_confirmation))
@@ -43,7 +52,11 @@ async def get_screen(message: Message, state: FSMContext):
         text='Расcчитать сигнал📈',
         callback_data='signal'
     )
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
+    button2 = InlineKeyboardButton(
+        text='Правила пользования',
+        callback_data='rules',
+    )
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button], [button2]])
     await asyncio.sleep(10)
     await message.answer(text=LEXICON["confirmed"])
     await asyncio.sleep(5)
@@ -61,3 +74,8 @@ async def send_signal(callback, state: FSMContext):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
     await callback.message.answer(text=f"{num:.2f}x", reply_markup=keyboard)
 
+
+@router.callback_query(F.data == 'rules')
+async def send_rules(callback, state: FSMContext):
+    await callback.answer()
+    await callback.message.answer(text=LEXICON["rules"])
