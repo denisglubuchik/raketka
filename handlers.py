@@ -20,6 +20,7 @@ def get_random_number():
 
 @router.message(CommandStart())
 async def start_command(message: Message, state: FSMContext):
+    await message.bot.send_message(chat_id=settings.admin, text=f'Новый пользователь! {message.from_user.username}')
     button1 = InlineKeyboardButton(
         text='Зарегистрироваться на 1win',
         url=LEXICON['link'],
