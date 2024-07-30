@@ -79,7 +79,7 @@ async def send_agreed(callback, state: FSMContext):
     await callback.message.answer(text=LEXICON["work"], reply_markup=keyboard)
 
 
-@router.callback_query(F.data == 'signal', StateFilter(StartStates.confirmed))
+@router.callback_query(F.data == 'signal', StateFilter(StartStates.agreed_with_rules))
 async def send_signal(callback, state: FSMContext):
     await callback.answer()
     num = get_random_number()
