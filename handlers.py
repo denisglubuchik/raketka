@@ -45,18 +45,38 @@ async def get_screen(message: Message, state: FSMContext):
 
     await state.set_state(StartStates.confirmed)
     button = InlineKeyboardButton(
-        text='Расcчитать сигнал📈',
-        callback_data='signal'
-    )
-    button2 = InlineKeyboardButton(
         text='Правила пользования',
         callback_data='rules',
     )
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button], [button2]])
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
     await asyncio.sleep(10)
     await message.answer(text=LEXICON["confirmed"])
     await asyncio.sleep(5)
     await message.answer(text=LEXICON["welcome_to_team"], reply_markup=keyboard)
+
+
+@router.callback_query(F.data == 'rules', StateFilter(StartStates.confirmed))
+async def send_rules(callback, state: FSMContext):
+    await callback.answer()
+    button = InlineKeyboardButton(
+        text='С правилами ознакомлен и согласен✅',
+        callback_data='agreed',
+    )
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
+
+    await state.set_state(StartStates.agreed_with_rules)
+    await callback.message.answer(text=LEXICON["rules"], reply_markup=keyboard)
+
+
+@router.callback_query(F.data == 'agreed', StateFilter(StartStates.agreed_with_rules))
+async def send_agreed(callback, state: FSMContext):
+    await callback.answer()
+    button = InlineKeyboardButton(
+        text='Рассчитать сигнал📈',
+        callback_data='signal'
+    )
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
+    await callback.message.answer(text=LEXICON["work"], reply_markup=keyboard)
 
 
 @router.callback_query(F.data == 'signal', StateFilter(StartStates.confirmed))
@@ -69,9 +89,3 @@ async def send_signal(callback, state: FSMContext):
     )
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
     await callback.message.answer(text=f"{num:.2f}x", reply_markup=keyboard)
-
-
-@router.callback_query(F.data == 'rules')
-async def send_rules(callback, state: FSMContext):
-    await callback.answer()
-    await callback.message.answer(text=LEXICON["rules"])
