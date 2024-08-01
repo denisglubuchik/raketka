@@ -2,10 +2,12 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.memory import SimpleEventIsolation
+
 from config import settings
 from handlers import router
 from aiogram.client.default import DefaultBotProperties
-from aiogram.fsm.storage.redis import RedisStorage
+from aiogram.fsm.storage.redis import RedisStorage, Redis
 
 logger = logging.getLogger(__name__)
 
@@ -18,11 +20,10 @@ async def main():
     )
 
     logger.info('Starting bot')
-
     bot = Bot(token=settings.token, default=DefaultBotProperties(parse_mode='HTML'))
 
-    storage = RedisStorage.from_url(settings.redis)
-    dp = Dispatcher(storage=storage)
+    redis = Redis(host='localhost', db=settings.db, decode_responses=True)
+    dp = Dispatcher(events_isolation=SimpleEventIsolation(), storage=RedisStorage(redis=redis))
     dp.include_router(router)
 
     await bot.delete_webhook(drop_pending_updates=True)

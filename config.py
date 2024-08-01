@@ -1,13 +1,14 @@
-from pydantic_settings import BaseSettings
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
-class Settings(BaseSettings):
-    token: str
-    admin: str
-    redis: str
-
-    class Config:
-        env_file = ".env"
+class Settings:
+    token: str = os.getenv("token")
+    admin: str = os.getenv("admin")
+    ref: str = os.getenv("ref")
+    db: int = os.getenv("db")
 
 
 settings = Settings()
